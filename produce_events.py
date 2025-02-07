@@ -30,7 +30,7 @@ producer = KafkaProducer(
 )
 
 # Read CSV and Send Messages to Kafka
-def stream_ad_events(csv_file, sleep_time=0.001):
+def stream_ad_events(csv_file, sleep_time=0.5):
     with open(csv_file, "r") as file:
         reader = csv.DictReader(file)
         for row in reader:
