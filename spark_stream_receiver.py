@@ -4,13 +4,14 @@ from pyspark.sql.functions import col, count, round, when, sum, max, from_unixti
 spark = SparkSession \
     .builder \
     .appName("AdStreamAnalytics") \
-    .config("spark.cassandra.connection.host", "127.0.0.1") \
+    .config("spark.cassandra.connection.host", "localhost") \
     .config("spark.cassandra.connection.port", "9042") \
     .master("local[4]") \
     .getOrCreate()
 
 spark.sparkContext.setLogLevel("WARN")
 spark.conf.set("spark.sql.shuffle.partitions", "5")
+spark.conf.set("spark.sql.streaming.checkpointLocation", "/tmp/spark-checkpoints")
 
 kafka_df = spark \
         .readStream \
@@ -129,12 +130,13 @@ ad_df = ad_df.withColumn("cost_per_click", col("cost_per_click").cast("float"))
 # # )
 
 ad_agg = (
-    ad_df.groupBy("campaign_id", "ad_id")
+    ad_df.withWatermark("timestamp", "30 seconds")
+    .groupBy("campaign_id", "ad_id")
     .agg(
         count(when(col("event_type") == "click", True)).alias("total_ad_clicks"),
         count(when(col("event_type") == "impression", True)).alias("total_ad_impressions"),
         round(sum(when(col("event_type") == "click", col("cost_per_click")).otherwise(0)), 2).alias("total_ad_cost"),
-        max("timestamp").alias("event_time")
+        max("timestamp").alias("timestamp")
     )
     .withColumn(
         "total_ad_interactions",
@@ -147,12 +149,13 @@ ad_agg = (
 )
 
 campaign_agg = (
-    ad_df.groupBy("campaign_id")
+    ad_df.withWatermark("timestamp", "30 seconds")
+    .groupBy("campaign_id")
     .agg(
         count(when(col("event_type") == "click", True)).alias("total_campaign_clicks"),
         count(when(col("event_type") == "impression", True)).alias("total_campaign_impressions"),
         round(sum(when(col("event_type") == "click", col("cost_per_click")).otherwise(0)), 2).alias("total_ad_cost"),        
-        max("timestamp").alias("event_time")
+        max("timestamp").alias("timestamp")
     )
     .withColumn(
         "total_campaign_interactions",
@@ -164,41 +167,41 @@ campaign_agg = (
     )
 )
 
-query_ad_level = (
-    ad_agg.writeStream \
-    .format("console") \
-    .outputMode("complete") \
-    .trigger(processingTime="5 seconds") \
-    .start()
-)
-
-query_campaign_level = (
-    campaign_agg.writeStream \
-    .format("console") \
-    .outputMode("complete") \
-    .trigger(processingTime="5 seconds") \
-    .start()
-)
-
 # query_ad_level = (
 #     ad_agg.writeStream \
-#     .format("org.apache.spark.sql.cassandra") \
-#     .option("keyspace", "ad_stream_analytics") \
-#     .option("table", "ad_metrics") \
-#     .outputMode("append") \
+#     .format("console") \
+#     .outputMode("complete") \
 #     .trigger(processingTime="5 seconds") \
 #     .start()
 # )
 
 # query_campaign_level = (
 #     campaign_agg.writeStream \
-#     .format("org.apache.spark.sql.cassandra") \
-#     .option("keyspace", "ad_stream_analytics") \
-#     .option("table", "campaign_metrics") \
-#     .outputMode("append") \
+#     .format("console") \
+#     .outputMode("complete") \
 #     .trigger(processingTime="5 seconds") \
 #     .start()
 # )
+
+query_ad_level = (
+    ad_agg.writeStream \
+    .format("org.apache.spark.sql.cassandra") \
+    .option("keyspace", "ad_stream_analytics") \
+    .option("table", "ad_metrics") \
+    .outputMode("append") \
+    .trigger(processingTime="5 seconds") \
+    .start()
+)
+
+query_campaign_level = (
+    campaign_agg.writeStream \
+    .format("org.apache.spark.sql.cassandra") \
+    .option("keyspace", "ad_stream_analytics") \
+    .option("table", "campaign_metrics") \
+    .outputMode("append") \
+    .trigger(processingTime="5 seconds") \
+    .start()
+)
 
 query_ad_level.awaitTermination()
 query_campaign_level.awaitTermination()
