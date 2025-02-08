@@ -25,6 +25,7 @@ json_df = kafka_df.selectExpr("CAST(value AS STRING)")
 ad_df = json_df.selectExpr("CAST(value AS STRING) as json") \
     .selectExpr("json_tuple(json, 'event_id', 'timestamp', 'event_type', 'user_id', 'ad_id', 'campaign_id', 'cost_per_click') as (event_id, timestamp, event_type, user_id, ad_id, campaign_id, cost_per_click)")
 # ad_df = ad_df.withColumn("timestamp", from_unixtime(col("timestamp")))
+ad_df = ad_df.withColumn("timestamp", round(col("timestamp"), 0).cast("timestamp"))
 ad_df = ad_df.withColumn("cost_per_click", col("cost_per_click").cast("float"))
 
 # # METRIC: Number of clicks per ad campaign
