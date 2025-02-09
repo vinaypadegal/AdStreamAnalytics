@@ -7,7 +7,7 @@ import time
 # Kafka Configuration
 KAFKA_BROKER = "localhost:9092"
 TOPIC_NAME = "ad_events"
-NUM_PARTITIONS = 5
+NUM_PARTITIONS = 8
 REPLICATION_FACTOR = 1
 
 # Function to Create Kafka Topic if Not Exists
@@ -30,7 +30,7 @@ producer = KafkaProducer(
 )
 
 # Read CSV and Send Messages to Kafka
-def stream_ad_events(csv_file, sleep_time=0.1):
+def stream_ad_events(csv_file, sleep_time=0.01):
     with open(csv_file, "r") as file:
         reader = csv.DictReader(file)
         for row in reader:

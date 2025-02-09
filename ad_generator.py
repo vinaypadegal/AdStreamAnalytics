@@ -37,7 +37,7 @@ for _ in range(NUM_EVENTS):
 
     events.append({
         "event_id": str(uuid.uuid4()),
-        "timestamp": time.time(),
+        # "timestamp": time.time(),
         "event_type": event_type,
         "user_id": user_id,
         "ad_id": ad_id,
