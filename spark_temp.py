@@ -42,18 +42,18 @@ def write_to_cassandra(batch_df, batch_id):
     campaign_agg = (
         batch_df.groupBy("campaign_id")
         .agg(
-            count(when(col("event_type") == "click", True)).alias("total_campaign_clicks"),
-            count(when(col("event_type") == "impression", True)).alias("total_campaign_impressions"),
-            round(sum(when(col("event_type") == "click", col("cost_per_click")).otherwise(0)), 2).alias("total_campaign_cost"),        
+            count(when(col("event_type") == "click", True)).alias("campaign_clicks"),
+            count(when(col("event_type") == "impression", True)).alias("campaign_impressions"),
+            round(sum(when(col("event_type") == "click", col("cost_per_click")).otherwise(0)), 2).alias("campaign_cost"),        
             # max("timestamp").alias("timestamp")
         )
         .withColumn(
-            "total_campaign_interactions",
-            col("total_campaign_clicks") + col("total_campaign_impressions")
+            "campaign_interactions",
+            col("campaign_clicks") + col("campaign_impressions")
         )
         .withColumn(
             "campaign_ctr",
-            round((col("total_campaign_clicks") / col("total_campaign_interactions")) * 100, 2)
+            round((col("campaign_clicks") / col("campaign_interactions")) * 100, 2)
         )
         .withColumn(
             "timestamp",
@@ -64,18 +64,18 @@ def write_to_cassandra(batch_df, batch_id):
     ad_agg = (
         batch_df.groupBy("campaign_id", "ad_id")
         .agg(
-            count(when(col("event_type") == "click", True)).alias("total_ad_clicks"),
-            count(when(col("event_type") == "impression", True)).alias("total_ad_impressions"),
-            round(sum(when(col("event_type") == "click", col("cost_per_click")).otherwise(0)), 2).alias("total_ad_cost"),
+            count(when(col("event_type") == "click", True)).alias("ad_clicks"),
+            count(when(col("event_type") == "impression", True)).alias("ad_impressions"),
+            round(sum(when(col("event_type") == "click", col("cost_per_click")).otherwise(0)), 2).alias("ad_cost"),
             # max("timestamp").alias("timestamp")
         )
         .withColumn(
-            "total_ad_interactions",
-            col("total_ad_clicks") + col("total_ad_impressions")
+            "ad_interactions",
+            col("ad_clicks") + col("ad_impressions")
         )
         .withColumn(
             "ad_ctr",
-            round((col("total_ad_clicks") / col("total_ad_interactions")) * 100, 2)
+            round((col("ad_clicks") / col("ad_interactions")) * 100, 2)
         )
         .withColumn(
             "timestamp",
