@@ -30,7 +30,7 @@ producer = KafkaProducer(
 )
 
 # Read CSV and Send Messages to Kafka
-def stream_ad_events(csv_file, sleep_time=0.01):
+def stream_ad_events(csv_file, sleep_time=0.001):
     with open(csv_file, "r") as file:
         reader = csv.DictReader(file)
         for row in reader:
@@ -53,8 +53,8 @@ def stream_ad_events(csv_file, sleep_time=0.01):
 
 # Run Producer
 if __name__ == "__main__":
-    create_topic_if_not_exists()  # Ensure topic exists
-    stream_ad_events("temp.csv")
+    create_topic_if_not_exists()
+    stream_ad_events("synthetic_ad_events.csv")
 
 
 
