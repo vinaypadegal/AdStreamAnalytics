@@ -69,7 +69,6 @@ graph TD;
 | **Spark Structured Streaming** | Real-Time Processing |
 | **PostgreSQL** | Efficient Storage & Querying |
 | **Grafana** | Visualization |
-| **Docker** | Deployment |
 
 ---
 
