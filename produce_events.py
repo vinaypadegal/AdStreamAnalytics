@@ -7,7 +7,7 @@ import time
 # Kafka Configuration
 KAFKA_BROKER = "localhost:9092"
 TOPIC_NAME = "ad_events"
-NUM_PARTITIONS = 5
+NUM_PARTITIONS = 8
 REPLICATION_FACTOR = 1
 
 # Function to Create Kafka Topic if Not Exists
@@ -30,13 +30,13 @@ producer = KafkaProducer(
 )
 
 # Read CSV and Send Messages to Kafka
-def stream_ad_events(csv_file, sleep_time=0.5):
+def stream_ad_events(csv_file, sleep_time=0.001):
     with open(csv_file, "r") as file:
         reader = csv.DictReader(file)
         for row in reader:
             message = {
                 "event_id": row["event_id"],
-                "timestamp": float(row["timestamp"]),
+                "timestamp": time.time(),
                 "event_type": row["event_type"],
                 "user_id": row["user_id"],
                 "ad_id": row["ad_id"],
@@ -53,8 +53,8 @@ def stream_ad_events(csv_file, sleep_time=0.5):
 
 # Run Producer
 if __name__ == "__main__":
-    create_topic_if_not_exists()  # Ensure topic exists
-    stream_ad_events("temp.csv")
+    create_topic_if_not_exists()
+    stream_ad_events("synthetic_ad_events.csv")
 
 
 
