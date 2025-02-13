@@ -60,6 +60,7 @@ graph TD;
 - 📌 **Total Cost per Ad**
 - 📌 **CTR & Cost Over Time (Plotted on Line Graphs)**
 
+![screenshot](images/screenshot1.png)
 ---
 
 ## **🛠 Technologies Used**
