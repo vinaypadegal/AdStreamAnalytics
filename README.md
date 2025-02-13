@@ -23,8 +23,7 @@ The pipeline follows a **real-time streaming architecture** that ensures **fast,
 
 2️⃣ **Stream Processing:**  
    - **Spark Structured Streaming** consumes Kafka events.  
-   - Aggregates **campaign-level** and **ad-level metrics** in **real-time**.  
-   - Ensures correctness using **event-time windowing** to handle late-arriving data.
+   - Aggregates **campaign-level** and **ad-level metrics** in **real-time**.
 
 3️⃣ **Storage:**  
    - Processed metrics are stored in **PostgreSQL** for efficient querying.
