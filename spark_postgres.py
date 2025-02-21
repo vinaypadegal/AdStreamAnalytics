@@ -45,6 +45,8 @@ def write_to_postgres(batch_df, batch_id):
     # print(f"batch_df Type: {type(batch_df)}")
     # batch_df.printSchema()
     # batch_df.show(5)
+
+    curtime = time.time()
     
     campaign_agg = (
         batch_df.groupBy("campaign_id")
@@ -64,7 +66,7 @@ def write_to_postgres(batch_df, batch_id):
         )
         .withColumn(
             "timestamp",
-            round(lit(time.time()), 0).cast("timestamp")
+            round(lit(curtime), 0).cast("timestamp")
         )
     )
 
@@ -86,7 +88,7 @@ def write_to_postgres(batch_df, batch_id):
         )
         .withColumn(
             "timestamp",
-            round(lit(time.time()), 0).cast("timestamp")
+            round(lit(curtime), 0).cast("timestamp")
         )
     )
 
