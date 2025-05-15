@@ -57,6 +57,7 @@ def stream_ad_events(csv_file, sleep_time=1/STREAMING_RATE_PER_SECOND):
 if __name__ == "__main__":
     create_topic_if_not_exists()
     stream_ad_events("synthetic_ad_events.csv")
+    # stream_ad_events("synthetic_ads_100k.csv")
 
 
 
